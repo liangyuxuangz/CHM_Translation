@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/xlsx.core.min.js"></script>
+		<script type="text/javascript" src="js/fun.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<label>请打开相应的翻译答案的XLSX文件</label>
+			<br />
+			<input type="file" id="excel-file" accept="application/msexcel" />
+			<br />
+			<br />
+			<label>请打开相应的待翻译的html文件</label>
+			<br />
+			<input type="file" id="html-file" accept="text/html" />
+			<br />
+			<br />
+			<iframe id="myiframe" src="static/3651.htm" style="width: 1000px;height: 700px;"></iframe>
+			<br />
+			<br />
+			<button onclick='trans()'>翻译</button>
+			
+		</div>
+	</body>
+
+	<script>
+		var t_file_name = "";
+		var t_file_table = [];
+		var t_file_Ext = "";
+
+		$('#excel-file').change(function(e) {
+			var file = $('#excel-file').val();
+			t_file_name = file.split("\\").pop();
+			t_file_name = t_file_name.substring(0, t_file_name.lastIndexOf("."));
+			t_fileExt = file.substr(file.lastIndexOf("."));
+			console.log(t_file_name);
+			console.log(t_fileExt);
+
+			var files = e.target.files;
+			console.log(files);
+			var fileReader = new FileReader();
+			fileReader.onload = function(ev) {
+				try {
+					var data = ev.target.result,
+						workbook = XLSX.read(data, {
+							type: 'binary'
+						}), // 以二进制流方式读取得到整份excel表格对象
+						tabledata = []; // 存储获取到的数据
+				} catch (e) {
+					console.log('文件类型不正确');
+					return;
+				}
+
+				// 表格的表格范围，可用于判断表头是否数量是否正确
+				var fromTo = '';
+				// 遍历每张表读取
+
+				for (var sheet in workbook.Sheets) {
+					if (workbook.Sheets.hasOwnProperty(sheet)) {
+						fromTo = workbook.Sheets[sheet]['!ref'];
+						console.log(fromTo);
+						tabledata = tabledata.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+						// break; // 如果只取第一张表，就取消注释这行
+					}
+				}
+				t_file_tabledata = tabledata;
+				console.log(t_file_tabledata);
+			};
+
+			// 以二进制方式打开文件
+			fileReader.readAsBinaryString(files[0]);
+		});
+
+		var h_file_name = "";
+		var h_file_text = "";
+		var h_file_Ext = "";
+
+		$('#html-file').change(function(e) {
+			var file = $('#html-file').val();
+			h_file_name = file.split("\\").pop();
+			h_file_name = t_file_name.substring(0, t_file_name.lastIndexOf("."));
+			h_fileExt = file.substr(file.lastIndexOf("."));
+			// console.log(file);
+			console.log(h_file_name);
+			console.log(h_fileExt);
+
+			var files = e.target.files;
+			console.log(files);
+			var fileReader = new FileReader();
+			fileReader.onload = function(ev) {
+				try {
+					h_file_text = ev.target.result;
+					console.log(h_file_text);
+
+				} catch (e) {
+					console.log('文件类型不正确');
+					return;
+				}
+			};
+
+			// 以二进制方式打开文件
+			fileReader.readAsBinaryString(files[0]);
+
+		});
+	</script>
+</html>
