@@ -5,14 +5,44 @@
 		<title>CHM翻译</title>
 		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
 		<script type="text/javascript" src="js/xlsx.core.min.js"></script>
+		<!-- 引入样式 -->
+		<!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+		<!-- 引入组件库 -->
+		<!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
 	</head>
 	<body>
-		<input type="file" id="excel-file">
+		<div id="app">
+			<input type="file" id="excel-file" />
+			<br />
+			<br />
+			<input type="file" id="html-file" />
+			<br />
+			<br />
+			<button>翻译</button>
+			<!-- <el-input v-model="t_file" type="file" placeholder="请打开相应的XLSX文件" accept="application/msexcel"></el-input> -->
+		</div>
+
 	</body>
 	<script type="text/javascript">
+// 		new Vue({
+// 			el: '#app',
+// 			data: function(){
+// 				return {
+// 					t_file:""
+// 				}
+// 			}
+// 		})
 		$('#excel-file').change(function(e) {
-			var files = e.target.files;
+			var file = $('#excel-file').val();
+			var fileName = file.split("\\").pop();
+			fileName = fileName.substring(0, fileName.lastIndexOf("."));
+			fileExt = file.substr(file.lastIndexOf("."));
+			console.log(file);
+			console.log(fileName);
+			console.log(fileExt);
 
+			var files = e.target.files;
+			console.log(files);
 			var fileReader = new FileReader();
 			fileReader.onload = function(ev) {
 				try {
@@ -20,7 +50,7 @@
 						workbook = XLSX.read(data, {
 							type: 'binary'
 						}), // 以二进制流方式读取得到整份excel表格对象
-						persons = []; // 存储获取到的数据
+						tabledata = []; // 存储获取到的数据
 				} catch (e) {
 					console.log('文件类型不正确');
 					return;
@@ -29,20 +59,26 @@
 				// 表格的表格范围，可用于判断表头是否数量是否正确
 				var fromTo = '';
 				// 遍历每张表读取
+
 				for (var sheet in workbook.Sheets) {
 					if (workbook.Sheets.hasOwnProperty(sheet)) {
 						fromTo = workbook.Sheets[sheet]['!ref'];
 						console.log(fromTo);
-						persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+						tabledata = tabledata.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
 						// break; // 如果只取第一张表，就取消注释这行
 					}
 				}
 
-				console.log(persons);
+				console.log(tabledata);
 			};
 
 			// 以二进制方式打开文件
 			fileReader.readAsBinaryString(files[0]);
+
+
+
+
 		});
+		// var fso= new ActiveXObject("Scripting.FileSystemObject");
 	</script>
 </html>
